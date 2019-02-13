@@ -5,6 +5,7 @@ robotpy-rev
 wpilib-controller
 numpy ~= 1.15
 dataclasses; python_version < '3.7'
+hypothesis
 
 coverage
 pyflakes
