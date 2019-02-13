@@ -74,5 +74,5 @@ def test_find_velocity(pos_x, start_spd, end_spd):
     vx, vy, _ = pure_pursuit.find_velocity(robot_position)
     if start_spd <= end_spd:
         assert start_spd - 1e-10 <= vx <= end_spd + 1e-10
-    elif end_spd <= start_spd:
+    else:
         assert end_spd - 1e-10 <= vx <= start_spd + 1e-10
