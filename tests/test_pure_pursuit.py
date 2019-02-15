@@ -1,7 +1,6 @@
-import utilities.pure_pursuit as pp
-from utilities.pure_pursuit import PurePursuit
 from hypothesis.strategies import floats
 from hypothesis import given
+import utilities.pure_pursuit as pp
 import math
 
 
@@ -27,11 +26,11 @@ def test_trapezoidal():
     floats(min_value=0, max_value=5),
 )
 def test_find_speed(distance_along_path, start_speed, end_speed):
-    pure_pursuit = PurePursuit(look_ahead=0.2, look_ahead_speed_modifier=0.25)
+    PP = pp.PurePursuit(0.2, 0.25)
     start_path_distance = 0
     end_path_distance = 2
 
-    speed = pure_pursuit.find_speed(
+    speed = PP.find_speed(
         start_path_distance,
         end_path_distance,
         start_speed,
@@ -39,20 +38,20 @@ def test_find_speed(distance_along_path, start_speed, end_speed):
         distance_along_path,
     )
     if end_speed > start_speed:
-        assert speed <= end_speed
-        assert speed >= start_speed
-    if end_speed < start_speed:
-        assert speed >= end_speed - 1e-8
-        assert speed <= start_speed + 1e-8
+        assert end_speed + 1e-8 >= speed >= start_speed - 1e-8
+    elif end_speed < start_speed:
+        assert end_speed - 1e-8 <= speed <= start_speed + 1e-8
+    else:
+        assert speed == start_speed
 
 
 @given(floats(min_value=0, max_value=10))
 def test_distance_along_path(x):
-    pure_pursuit = PurePursuit(look_ahead=0.2, look_ahead_speed_modifier=0.25)
-    pure_pursuit.last_robot_x = 0
-    pure_pursuit.last_robot_y = 0
+    PP = pp.PurePursuit(0.2, 0.25)
+    PP.last_robot_x = 0
+    PP.last_robot_y = 0
     robot_position = (x, 0)
-    distance = pure_pursuit.distance_along_path(robot_position)
+    distance = PP.distance_along_path(robot_position)
 
     assert math.isclose(distance, x, rel_tol=1e-8)
 
@@ -63,16 +62,35 @@ def test_distance_along_path(x):
     floats(min_value=-4, max_value=4),
 )
 def test_find_velocity(pos_x, start_spd, end_spd):
-    pure_pursuit = PurePursuit(look_ahead=0.2, look_ahead_speed_modifier=0.25)
-    pure_pursuit.last_robot_x = 0
-    pure_pursuit.last_robot_y = 0
+    PP = pp.PurePursuit(0.2, 0.25)
+    PP.last_robot_x = 0
+    PP.last_robot_y = 0
     robot_position = (pos_x, 0)
-    pure_pursuit.waypoints = [
+    PP.waypoints = [
         pp.Segment(0, 0, 0, start_spd, 0),
         pp.Segment(10, 0, 0, end_spd, 10),
     ]
-    vx, vy, _ = pure_pursuit.find_velocity(robot_position)
+    vx, _, __ = PP.find_velocity(robot_position)
     if start_spd <= end_spd:
         assert start_spd - 1e-10 <= vx <= end_spd + 1e-10
     else:
         assert end_spd - 1e-10 <= vx <= start_spd + 1e-10
+
+
+@given(floats(min_value=0, max_value=9))
+def test_compute_direction(pos_x):
+    PP = pp.PurePursuit(0.2, 0.25)
+    pp.PurePursuit.last_robot_x = 0
+    pp.PurePursuit.last_robot_y = 0
+    robot_pos = (pos_x, 0)
+    waypoints = [pp.Segment(0, 0, 0, 0, 0), pp.Segment(10, 0, 0, 0, 10)]
+    goal_point = PP.compute_direction(robot_pos, waypoints[0], waypoints[-1], pos_x)
+    assert goal_point[0] == 1
+    waypoints_none = [pp.Segment(0, 0, 0, 0, 0), pp.Segment(1, 0, 0, 0, 10)]
+    goal_point_none = PP.compute_direction(
+        robot_position=(0, 0),
+        segment_start=waypoints_none[0],
+        segment_end=waypoints_none[1],
+        distance_along_path=0,
+    )
+    assert all(goal_point_none) == all(waypoints[-1][:2])
