@@ -66,10 +66,8 @@ def test_find_velocity(pos_x, start_spd, end_spd):
     PP.last_robot_x = 0
     PP.last_robot_y = 0
     robot_position = (pos_x, 0)
-    PP.waypoints = [
-        pp.Segment(0, 0, 0, start_spd, 0),
-        pp.Segment(10, 0, 0, end_spd, 10),
-    ]
+    waypoints = [pp.Waypoint(0, 0, 0, start_spd), pp.Waypoint(10, 0, 0, end_spd)]
+    PP.build_path(waypoints)
     vx, _, __ = PP.find_velocity(robot_position)
     if start_spd <= end_spd:
         assert start_spd - 1e-10 <= vx <= end_spd + 1e-10
