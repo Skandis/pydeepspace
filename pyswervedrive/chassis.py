@@ -26,7 +26,7 @@ class SwerveChassis:
     # odometry_y_vel = tunable(0)
     # odometry_z_vel = tunable(0)
 
-    hold_heading = tunable(False)
+    hold_heading = tunable(True)
 
     def __init__(self):
         self.vx = 0
