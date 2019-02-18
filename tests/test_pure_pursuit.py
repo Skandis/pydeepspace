@@ -6,7 +6,6 @@ from hypothesis.strategies import floats
 import utilities.pure_pursuit as pp
 
 
-
 def test_trapezoidal():
     waypoints = [pp.Waypoint(0, 0, 0, 0), pp.Waypoint(10, 10, 0, 2)]
     trap = pp.insert_trapezoidal_waypoints(waypoints, 2, -2)
