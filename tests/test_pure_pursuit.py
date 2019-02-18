@@ -37,8 +37,8 @@ def test_find_speed(distance_along_path, start_speed, end_speed):
         end_speed,
         distance_along_path,
     )
-    if end_speed > start_speed:
-        assert end_speed + 1e-8 >= speed >= start_speed - 1e-8
+    if start_speed < end_speed:
+        assert start_speed - 1e-8 <= speed <= end_speed + 1e-8
     elif end_speed < start_speed:
         assert end_speed - 1e-8 <= speed <= start_speed + 1e-8
     else:
@@ -78,17 +78,17 @@ def test_find_velocity(pos_x, start_spd, end_spd):
 @given(floats(min_value=0, max_value=9))
 def test_compute_direction(pos_x):
     PP = pp.PurePursuit(0.2, 0.25)
-    pp.PurePursuit.last_robot_x = 0
-    pp.PurePursuit.last_robot_y = 0
-    robot_pos = (pos_x, 0)
-    waypoints = [pp.Segment(0, 0, 0, 0, 0), pp.Segment(10, 0, 0, 0, 10)]
-    goal_point = PP.compute_direction(robot_pos, waypoints[0], waypoints[-1], pos_x)
+    PP.last_robot_x = 0
+    PP.last_robot_y = 0
+    goal_point = PP.compute_direction(
+        (pos_x, 0), pp.Segment(0, 0, 0, 0, 0), pp.Segment(10, 0, 0, 0, 10), pos_x
+    )
     assert goal_point[0] == 1
-    waypoints_none = [pp.Segment(0, 0, 0, 0, 0), pp.Segment(1, 0, 0, 0, 10)]
+    waypoints_none = [pp.Segment(0, 0, 0, 0, 0), pp.Segment(2, 0, 0, 0, 2)]
     goal_point_none = PP.compute_direction(
         robot_position=(0, 0),
         segment_start=waypoints_none[0],
         segment_end=waypoints_none[1],
         distance_along_path=0,
     )
-    assert all(goal_point_none) == all(waypoints[-1][:2])
+    assert all(goal_point_none) == all(waypoints_none[1][:2])
