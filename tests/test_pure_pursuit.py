@@ -1,7 +1,10 @@
-from hypothesis.strategies import floats
-from hypothesis import given
-import utilities.pure_pursuit as pp
 import math
+
+from hypothesis import given
+from hypothesis.strategies import floats
+
+import utilities.pure_pursuit as pp
+
 
 
 def test_trapezoidal():
